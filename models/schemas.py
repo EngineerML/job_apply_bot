@@ -23,3 +23,18 @@ class CoverLetterResponse(BaseModel):
 class SaveResponse(BaseModel):
     success: bool
     cover_letter_id: Optional[str] = None
+
+
+class SaveUserRequest(BaseModel):
+    name: str
+    base_resume_text: str
+
+
+class UserResponse(BaseModel):
+    exists: bool
+    name: Optional[str] = None
+
+
+class UserFullResponse(BaseModel):
+    name: Optional[str] = None
+    base_resume_text: Optional[str] = None

@@ -39,3 +39,24 @@ def save_cover_letter(job_id: str, content: str, user_id: str = "default") -> st
         "content": content,
     }).execute()
     return result.data[0]["id"]
+
+
+def upsert_user(name: str, base_resume_text: str, user_id: str = "default") -> None:
+    client = get_client()
+    client.table("users").upsert({
+        "id": user_id,
+        "name": name,
+        "base_resume_text": base_resume_text,
+    }).execute()
+
+
+def get_user(user_id: str = "default") -> dict | None:
+    client = get_client()
+    result = client.table("users").select("id, name").eq("id", user_id).execute()
+    return result.data[0] if result.data else None
+
+
+def get_user_full(user_id: str = "default") -> dict | None:
+    client = get_client()
+    result = client.table("users").select("id, name, base_resume_text").eq("id", user_id).execute()
+    return result.data[0] if result.data else None
