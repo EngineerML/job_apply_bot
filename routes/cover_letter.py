@@ -5,10 +5,31 @@ from models.schemas import (
     CoverLetterResponse, SaveResponse,
     SaveUserRequest, UserResponse, UserFullResponse,
     DownloadPdfRequest, CheckJobRequest, CheckJobResponse,
+    SaveJobRequest, SaveJobResponse, SaveCoverLetterByIdRequest,
 )
 from services import openai_service, supabase_service, pdf_service
 
 router = APIRouter()
+
+
+@router.post("/save-job", response_model=SaveJobResponse)
+async def save_job(req: SaveJobRequest):
+    try:
+        job_id = supabase_service.save_job(
+            req.job_title, req.company, req.job_description, req.job_url
+        )
+        return SaveJobResponse(job_id=job_id)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/save-cover-letter-by-id", response_model=SaveResponse)
+async def save_cover_letter_by_id(req: SaveCoverLetterByIdRequest):
+    try:
+        cl_id = supabase_service.save_cover_letter(req.job_id, req.cover_letter)
+        return SaveResponse(success=True, cover_letter_id=cl_id)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.post("/check-job", response_model=CheckJobResponse)

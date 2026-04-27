@@ -8,6 +8,22 @@ class GenerateCoverLetterRequest(BaseModel):
     job_description: str
 
 
+class SaveJobRequest(BaseModel):
+    job_title: str
+    company: str
+    job_description: str
+    job_url: str
+
+
+class SaveJobResponse(BaseModel):
+    job_id: str
+
+
+class SaveCoverLetterByIdRequest(BaseModel):
+    job_id: str
+    cover_letter: str
+
+
 class SaveCoverLetterRequest(BaseModel):
     job_title: str
     company: str
