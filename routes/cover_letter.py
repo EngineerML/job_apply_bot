@@ -1,10 +1,12 @@
 from fastapi import APIRouter, HTTPException
+from fastapi.responses import Response
 from models.schemas import (
     GenerateCoverLetterRequest, SaveCoverLetterRequest,
     CoverLetterResponse, SaveResponse,
     SaveUserRequest, UserResponse, UserFullResponse,
+    DownloadPdfRequest,
 )
-from services import openai_service, supabase_service
+from services import openai_service, supabase_service, pdf_service
 
 router = APIRouter()
 
@@ -62,5 +64,19 @@ async def get_user_full():
         return UserFullResponse(name=user["name"], base_resume_text=user["base_resume_text"])
     except HTTPException:
         raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/download-pdf")
+async def download_pdf(req: DownloadPdfRequest):
+    try:
+        pdf_bytes = pdf_service.generate_pdf(req.content, req.username, req.job_title)
+        filename = f"{req.username}_{req.job_title}_coverletter.pdf".replace(" ", "_")
+        return Response(
+            content=pdf_bytes,
+            media_type="application/pdf",
+            headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+        )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

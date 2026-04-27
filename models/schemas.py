@@ -38,3 +38,9 @@ class UserResponse(BaseModel):
 class UserFullResponse(BaseModel):
     name: Optional[str] = None
     base_resume_text: Optional[str] = None
+
+
+class DownloadPdfRequest(BaseModel):
+    content: str
+    username: str
+    job_title: str
