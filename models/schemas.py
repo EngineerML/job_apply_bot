@@ -16,6 +16,18 @@ class SaveCoverLetterRequest(BaseModel):
     cover_letter: str
 
 
+class CheckJobRequest(BaseModel):
+    job_url: str
+
+
+class CheckJobResponse(BaseModel):
+    found: bool
+    cover_letter: Optional[str] = None
+    job_title: Optional[str] = None
+    company: Optional[str] = None
+    status: Optional[str] = None
+
+
 class CoverLetterResponse(BaseModel):
     cover_letter: str
 

@@ -31,6 +31,21 @@ def save_job(title: str, company: str, description: str, url: str) -> str:
     return result.data[0]["id"]
 
 
+def find_existing_job(url: str) -> dict | None:
+    client = get_client()
+    if not url:
+        return None
+    result = client.table("jobs").select(
+        "id, title, company, url, status, cover_letters(content)"
+    ).eq("url", url).order("created_at", desc=True).limit(1).execute()
+    if result.data:
+        row = result.data[0]
+        cl = row.pop("cover_letters", None)
+        row["cover_letter"] = cl[0]["content"] if cl else None
+        return row
+    return None
+
+
 def save_cover_letter(job_id: str, content: str, user_id: str = "default") -> str:
     client = get_client()
     result = client.table("cover_letters").insert({

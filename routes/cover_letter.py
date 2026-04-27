@@ -4,11 +4,28 @@ from models.schemas import (
     GenerateCoverLetterRequest, SaveCoverLetterRequest,
     CoverLetterResponse, SaveResponse,
     SaveUserRequest, UserResponse, UserFullResponse,
-    DownloadPdfRequest,
+    DownloadPdfRequest, CheckJobRequest, CheckJobResponse,
 )
 from services import openai_service, supabase_service, pdf_service
 
 router = APIRouter()
+
+
+@router.post("/check-job", response_model=CheckJobResponse)
+async def check_job(req: CheckJobRequest):
+    try:
+        job = supabase_service.find_existing_job(req.job_url)
+        if job and job.get("cover_letter"):
+            return CheckJobResponse(
+                found=True,
+                cover_letter=job["cover_letter"],
+                job_title=job.get("title"),
+                company=job.get("company"),
+                status=job.get("status"),
+            )
+        return CheckJobResponse(found=False)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.post("/generate-cover-letter", response_model=CoverLetterResponse)
