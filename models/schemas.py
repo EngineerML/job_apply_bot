@@ -44,3 +44,18 @@ class DownloadPdfRequest(BaseModel):
     content: str
     username: str
     job_title: str
+
+
+class JobRecord(BaseModel):
+    id: str
+    title: Optional[str]
+    company: Optional[str]
+    description: Optional[str]
+    url: Optional[str]
+    created_at: Optional[str]
+    status: Optional[str]
+    cover_letter: Optional[str]
+
+
+class UpdateStatusRequest(BaseModel):
+    status: str

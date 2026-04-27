@@ -60,3 +60,22 @@ def get_user_full(user_id: str = "default") -> dict | None:
     client = get_client()
     result = client.table("users").select("id, name, base_resume_text").eq("id", user_id).execute()
     return result.data[0] if result.data else None
+
+
+def get_jobs() -> list:
+    client = get_client()
+    # Join cover_letters to get content alongside each job
+    result = client.table("jobs").select(
+        "id, title, company, description, url, created_at, status, cover_letters(content)"
+    ).order("created_at", desc=True).execute()
+    rows = []
+    for row in result.data:
+        cl = row.pop("cover_letters", None)
+        row["cover_letter"] = cl[0]["content"] if cl else None
+        rows.append(row)
+    return rows
+
+
+def update_job_status(job_id: str, status: str) -> None:
+    client = get_client()
+    client.table("jobs").update({"status": status}).eq("id", job_id).execute()
