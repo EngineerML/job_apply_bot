@@ -91,6 +91,12 @@ def get_jobs() -> list:
     return rows
 
 
+def delete_job(job_id: str) -> None:
+    client = get_client()
+    client.table("cover_letters").delete().eq("job_id", job_id).execute()
+    client.table("jobs").delete().eq("id", job_id).execute()
+
+
 def update_job_status(job_id: str, status: str) -> None:
     client = get_client()
     client.table("jobs").update({"status": status}).eq("id", job_id).execute()

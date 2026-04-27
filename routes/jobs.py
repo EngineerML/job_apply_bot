@@ -14,6 +14,15 @@ async def get_jobs():
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@router.delete("/jobs/{job_id}")
+async def delete_job(job_id: str):
+    try:
+        supabase_service.delete_job(job_id)
+        return {"success": True}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @router.patch("/jobs/{job_id}/status")
 async def update_job_status(job_id: str, req: UpdateStatusRequest):
     valid = {"Applied", "Denied", "Interview", "Accepted"}
