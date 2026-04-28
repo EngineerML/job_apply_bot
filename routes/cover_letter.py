@@ -6,10 +6,29 @@ from models.schemas import (
     SaveUserRequest, UserResponse, UserFullResponse,
     DownloadPdfRequest, CheckJobRequest, CheckJobResponse,
     SaveJobRequest, SaveJobResponse, SaveCoverLetterByIdRequest,
+    ProfileData,
 )
 from services import openai_service, supabase_service, pdf_service
 
 router = APIRouter()
+
+
+@router.get("/profile", response_model=ProfileData)
+async def get_profile():
+    try:
+        data = supabase_service.get_profile()
+        return ProfileData(**(data or {}))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/profile")
+async def save_profile(req: ProfileData):
+    try:
+        supabase_service.upsert_profile(req.model_dump(exclude_none=True))
+        return {"success": True}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.post("/save-job", response_model=SaveJobResponse)

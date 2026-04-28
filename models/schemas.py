@@ -53,6 +53,22 @@ class SaveResponse(BaseModel):
     cover_letter_id: Optional[str] = None
 
 
+class ProfileData(BaseModel):
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    email: Optional[str] = None
+    phone: Optional[str] = None
+    street: Optional[str] = None
+    city: Optional[str] = None
+    state: Optional[str] = None
+    country: Optional[str] = None
+    zip: Optional[str] = None
+    race: Optional[str] = None
+    veteran: Optional[str] = None
+    disability: Optional[str] = None
+    desired_salary: Optional[str] = None
+
+
 class SaveUserRequest(BaseModel):
     name: str
     base_resume_text: str

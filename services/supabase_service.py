@@ -77,6 +77,17 @@ def get_user_full(user_id: str = "default") -> dict | None:
     return result.data[0] if result.data else None
 
 
+def get_profile(user_id: str = "default") -> dict | None:
+    client = get_client()
+    result = client.table("profile").select("*").eq("id", user_id).execute()
+    return result.data[0] if result.data else None
+
+
+def upsert_profile(data: dict, user_id: str = "default") -> None:
+    client = get_client()
+    client.table("profile").upsert({"id": user_id, **data}).execute()
+
+
 def get_jobs() -> list:
     client = get_client()
     # Join cover_letters to get content alongside each job
