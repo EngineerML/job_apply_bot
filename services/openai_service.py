@@ -19,7 +19,7 @@ def generate_cover_letter(job_title: str, company: str, job_description: str, re
 Using the resume below, write a tailored cover letter for the job posting.
 
 Guidelines:
-- 4 to 6 paragraphs, concise and professional
+- 4 to 6 sentences, concise and professional
 - Highlight relevant skills and experience from the resume
 - Avoid generic phrases like "I am a hard worker" or "I am passionate"
 - Address the specific role and company
