@@ -77,33 +77,31 @@ def get_user_full(user_id: str = "default") -> dict | None:
     return result.data[0] if result.data else None
 
 
-def get_profile(user_id: str = "default") -> dict | None:
+def save_special_qa(job_id: str, items: list) -> None:
     client = get_client()
-    result = client.table("profile").select("*").eq("id", user_id).execute()
-    return result.data[0] if result.data else None
-
-
-def upsert_profile(data: dict, user_id: str = "default") -> None:
-    client = get_client()
-    client.table("profile").upsert({"id": user_id, **data}).execute()
+    client.table("special_qa").insert([
+        {"job_id": job_id, "prompt": item["prompt"], "answer": item["answer"]}
+        for item in items
+    ]).execute()
 
 
 def get_jobs() -> list:
     client = get_client()
-    # Join cover_letters to get content alongside each job
     result = client.table("jobs").select(
-        "id, title, company, description, url, created_at, status, cover_letters(content)"
+        "id, title, company, description, url, created_at, status, cover_letters(content), special_qa(id, prompt, answer)"
     ).order("created_at", desc=True).execute()
     rows = []
     for row in result.data:
         cl = row.pop("cover_letters", None)
         row["cover_letter"] = cl[0]["content"] if cl else None
+        row["special_qa"] = row.pop("special_qa", []) or []
         rows.append(row)
     return rows
 
 
 def delete_job(job_id: str) -> None:
     client = get_client()
+    client.table("special_qa").delete().eq("job_id", job_id).execute()
     client.table("cover_letters").delete().eq("job_id", job_id).execute()
     client.table("jobs").delete().eq("id", job_id).execute()
 

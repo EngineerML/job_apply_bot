@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 
 
 class GenerateCoverLetterRequest(BaseModel):
@@ -58,22 +58,6 @@ class SaveUserRequest(BaseModel):
     base_resume_text: str
 
 
-class ProfileData(BaseModel):
-    first_name: Optional[str] = None
-    last_name: Optional[str] = None
-    email: Optional[str] = None
-    phone: Optional[str] = None
-    street: Optional[str] = None
-    city: Optional[str] = None
-    state: Optional[str] = None
-    country: Optional[str] = None
-    zip: Optional[str] = None
-    race: Optional[str] = None
-    veteran: Optional[str] = None
-    disability: Optional[str] = None
-    desired_salary: Optional[str] = None
-
-
 class UserResponse(BaseModel):
     exists: bool
     name: Optional[str] = None
@@ -90,6 +74,22 @@ class DownloadPdfRequest(BaseModel):
     job_title: str
 
 
+class SpecialQAItem(BaseModel):
+    prompt: str
+    answer: str
+
+
+class SaveSpecialQARequest(BaseModel):
+    job_id: str
+    items: List[SpecialQAItem]
+
+
+class SpecialQARecord(BaseModel):
+    id: str
+    prompt: str
+    answer: str
+
+
 class JobRecord(BaseModel):
     id: str
     title: Optional[str]
@@ -99,6 +99,7 @@ class JobRecord(BaseModel):
     created_at: Optional[str]
     status: Optional[str]
     cover_letter: Optional[str]
+    special_qa: Optional[List[SpecialQARecord]] = []
 
 
 class UpdateStatusRequest(BaseModel):

@@ -6,29 +6,11 @@ from models.schemas import (
     SaveUserRequest, UserResponse, UserFullResponse,
     DownloadPdfRequest, CheckJobRequest, CheckJobResponse,
     SaveJobRequest, SaveJobResponse, SaveCoverLetterByIdRequest,
-    ProfileData,
+    SaveSpecialQARequest,
 )
 from services import openai_service, supabase_service, pdf_service
 
 router = APIRouter()
-
-
-@router.get("/profile", response_model=ProfileData)
-async def get_profile():
-    try:
-        data = supabase_service.get_profile()
-        return ProfileData(**(data or {}))
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@router.post("/profile")
-async def save_profile(req: ProfileData):
-    try:
-        supabase_service.upsert_profile(req.model_dump(exclude_none=True))
-        return {"success": True}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.post("/save-job", response_model=SaveJobResponse)
@@ -47,6 +29,47 @@ async def save_cover_letter_by_id(req: SaveCoverLetterByIdRequest):
     try:
         cl_id = supabase_service.save_cover_letter(req.job_id, req.cover_letter)
         return SaveResponse(success=True, cover_letter_id=cl_id)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/generate-answer")
+async def generate_answer(req: GenerateCoverLetterRequest):
+    """Reuse GenerateCoverLetterRequest shape: job_title=prompt, job_description=desc, company unused"""
+    try:
+        resume = supabase_service.fetch_user_resume()
+        client = openai_service.get_client()
+        prompt = f"""You are helping a job applicant answer a special application question.
+
+Resume:
+{resume}
+
+Job Description:
+{req.job_description}
+
+Question / Prompt:
+{req.job_title}
+
+Write a concise, professional answer (2-4 sentences) based on the resume and job context."""
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.7,
+            max_tokens=300,
+        )
+        return {"answer": response.choices[0].message.content.strip()}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/save-special-qa")
+async def save_special_qa(req: SaveSpecialQARequest):
+    try:
+        supabase_service.save_special_qa(
+            req.job_id,
+            [{"prompt": i.prompt, "answer": i.answer} for i in req.items]
+        )
+        return {"success": True}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
