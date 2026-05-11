@@ -22,3 +22,4 @@ app.include_router(jobs_router)
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
